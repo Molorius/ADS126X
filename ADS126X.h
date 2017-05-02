@@ -3,10 +3,6 @@ Blake Felt
 https://github.com/Molorius/ADS126X-Arduino
 
 This is a class to use the TI ADS1262 and ADS1263 analog converters with an Arduino. 
-
-  v1.0 - Support of calibration (all three types), analog reads, input select, start and stop
-  of reads, and system reset. All of this is on ADC1, as I do not have the 
-  ADS1263 to test ADC2. 
 */
 
 #ifndef ADS126X_H
@@ -465,7 +461,7 @@ typedef union { // page 106
   uint8_t reg;
 } ADS126X_ADC2FSC_Type;
 
-typedef struct { // the entire register map
+typedef struct { // the entire register map, page 88
   __IO ADS126X_ID_Type        ID;         /**< \brief Offset: 0x00 (R/W  8) Device Identification          */
   __IO ADS126X_POWER_Type     POWER;      /**< \brief Offset: 0x01 (R/W  8) Power                          */
   __IO ADS126X_INTERFACE_Type INTERFACE;  /**< \brief Offset: 0x02 (R/W  8) Interface                      */
@@ -511,20 +507,24 @@ typedef union { // page 70
 
 class ADS126X {
   public:
+  	// Initialization
     ADS126X(void);
     void begin(uint8_t chip_select);
     void begin(void);
     void setStartPin(uint8_t pin); // designate a pin connected to START
 
     // All ADC Commands. Page 85
+    //General Commands
     void noOperation(void);
     void reset(void);
     void startADC1(void);
     void stopADC1(void);
     void startADC2(void);
     void stopADC2(void);
+    // Analog Read Functions
     int32_t readADC1(uint8_t pos_pin,uint8_t neg_pin);
     int32_t readADC2(uint8_t pos_pin,uint8_t neg_pin);
+    // Calibration Functions
     void calibrateSysOffsetADC1(uint8_t shorted1,uint8_t shorted2); 
     void calibrateGainADC1(uint8_t vcc_pin,uint8_t gnd_pin);
     void calibrateSelfOffsetADC1(void);
@@ -533,31 +533,31 @@ class ADS126X {
     void calibrateSelfOffsetADC2(void);
 
     // POWER functions
-    uint8_t checkResetBit(void);
-    uint8_t clearResetBit(void);
-    uint8_t enableLevelShift(void);
-    uint8_t disableLevelShift(void);
-    uint8_t enableInternalReference(void);
-    uint8_t disableInternalReference(void);
+    bool checkResetBit(void);
+    void clearResetBit(void);
+    void enableLevelShift(void);
+    void disableLevelShift(void);
+    void enableInternalReference(void);
+    void disableInternalReference(void);
 
-    // INTERFACE functions
+    // INTERFACE/checksum functions
     void disableCheck(void);
     void setChecksumMode(void);
     void setCRCMode(void);
-    uint8_t lastChecksum(void);
+    bool lastChecksum(void);
 
     // Status functions
     void enableStatus(void);
     void disableStatus(void);
     uint8_t lastStatus(void); // returns entire status byte
-    uint8_t lastADC2Status(void);
-    uint8_t lastADC1Status(void);
-    uint8_t lastClockSource(void);
-    uint8_t lastADC1LowReferenceAlarm(void);
-    uint8_t lastADC1PGAOutputLowAlarm(void);
-    uint8_t lastADC1PGAOutputHighAlarm(void);
-    uint8_t lastADC1PGADifferentialOutputAlarm(void);
-    uint8_t lastReset(void);
+    bool lastADC2Status(void);
+    bool lastADC1Status(void);
+    bool lastClockSource(void);
+    bool lastADC1LowReferenceAlarm(void);
+    bool lastADC1PGAOutputLowAlarm(void);
+    bool lastADC1PGAOutputHighAlarm(void);
+    bool lastADC1PGADifferentialOutputAlarm(void);
+    bool lastReset(void);
 
     // MODE0 functions
     void setContinuousMode(void);
@@ -582,17 +582,21 @@ class ADS126X {
     void gpioDisconnect(uint8_t pin);
     void gpioDirection(uint8_t pin,uint8_t direction);
     void gpioWrite(uint8_t pin,uint8_t val);
-    void gpioRead(uint8_t pin);
+    bool gpioRead(uint8_t pin);
     
   private:
+    // This will hold all values of the register. All commands are done
+    // through this. 
     ADS126X_REGISTER_Type REGISTER;
-    __IO unsigned char *REGISTER_ARRAY = (uint8_t *)&REGISTER.ID.reg; // an array to call each register by offset
+    // An array to call each register by the offset. 
+    // It has the same memory location as REGISTER, so the changes
+    // will reflect on both. 
+    __IO unsigned char *REGISTER_ARRAY = (uint8_t *)&REGISTER.ID.reg; 
     
     bool cs_used = false;
     uint8_t cs_pin; // chip select pin
     bool start_used = false;
     uint8_t start_pin; // start pin
-    bool pulse_mode = false;
 
     ADS126X_STATUS_Type STATUS; // save last status and checksum values
     uint8_t CHECKSUM;

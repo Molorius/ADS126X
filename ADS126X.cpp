@@ -66,7 +66,6 @@ void ADS126X::stopADC2() {
 int32_t ADS126X::readADC1(uint8_t pos_pin,uint8_t neg_pin) {
   // I have this by command only
   if(cs_used) digitalWrite(cs_pin,0);
-  if(pulse_mode) ADS126X::startADC1();
 
   union { // create a structure to hold all the data
     struct {
@@ -111,9 +110,7 @@ int32_t ADS126X::readADC1(uint8_t pos_pin,uint8_t neg_pin) {
 }
 
 int32_t ADS126X::readADC2(uint8_t pos_pin,uint8_t neg_pin) {
-  // I have this by command only
   if(cs_used) digitalWrite(cs_pin,0);
-  if(pulse_mode) ADS126X::startADC2();
 
   union { // create a structure to hold all the data
     struct {
@@ -211,9 +208,37 @@ void ADS126X::calibrateSelfOffsetADC2() {
   ADS126X::sendCommand(ADS126X_SFOCAL2);
 }
 
+/*!< POWER register	        */
+
+bool ADS126X::checkResetBit() {
+	ADS126X::readRegister(ADS126X_POWER); // read the POWER register
+	return REGISTER.POWER.bit.RESET;
+}
+
+void ADS126X::clearResetBit() {
+	REGISTER.POWER.bit.RESET = 0;
+	ADS126X::writeRegister(ADS126X_POWER);
+}
+
+void ADS126X::enableLevelShift() {
+	REGISTER.POWER.bit.VBIAS = 1;
+	ADS126X::writeRegister(ADS126X_POWER);
+}
+
+void ADS126X::disableLevelShift() {
+	REGISTER.POWER.bit.VBIAS = 0;
+	ADS126X::writeRegister(ADS126X_POWER);
+}
+
+void ADS126X::enableInternalReference() {
+	REGISTER.POWER.bit.INTREF = 1;
+	ADS126X::writeRegister(ADS126X_POWER);
+}
+
 /*!< INTERFACE register     */
 
 void ADS126X::disableCheck() {
+  CHECKSUM = 0;
   REGISTER.INTERFACE.bit.CRC = ADS126X_DISABLE;
   ADS126X::writeRegister(ADS126X_INTERFACE);
 }
@@ -228,9 +253,12 @@ void ADS126X::setCRCMode() {
   ADS126X::writeRegister(ADS126X_INTERFACE);
 }
 
-uint8_t ADS126X::lastChecksum() {
+bool ADS126X::lastChecksum() {
   return CHECKSUM;
 }
+
+
+/*!< Status Functions 		*/
 
 void ADS126X::enableStatus() {
   REGISTER.INTERFACE.bit.STATUS = ADS126X_ENABLE;
@@ -247,16 +275,46 @@ uint8_t ADS126X::lastStatus() {
   return STATUS.reg;
 }
 
+bool ADS126X::lastADC2Status() {
+	return STATUS.bit.ADC2;
+}
+
+bool ADS126X::lastADC1Status() {
+	return STATUS.bit.ADC1;
+}
+
+bool ADS126X::lastClockSource() {
+	return STATUS.bit.EXTCLK;
+}
+
+bool ADS126X::lastADC1LowReferenceAlarm() {
+	return STATUS.bit.REF_ALM;
+}
+
+bool ADS126X::lastADC1PGAOutputLowAlarm() {
+	return STATUS.bit.PGAL_ALM;
+}
+
+bool ADS126X::lastADC1PGAOutputHighAlarm() {
+	return STATUS.bit.PGAH_ALM;
+}
+
+bool ADS126X::lastADC1PGADifferentialOutputAlarm() {
+	return STATUS.bit.PGAD_ALM;
+}
+
+bool ADS126X::lastReset() {
+	return STATUS.bit.RESET;
+}
+
 /*!< MODE0 register       */
 
 void ADS126X::setContinuousMode() {
-  pulse_mode = false;
   REGISTER.MODE0.bit.RUNMODE = ADS126X_CONV_CONT;
   ADS126X::writeRegister(ADS126X_MODE0);
 }
 
 void ADS126X::setPulseMode() {
-  pulse_mode = true;
   REGISTER.MODE0.bit.RUNMODE = ADS126X_CONV_PULSE;
   ADS126X::writeRegister(ADS126X_MODE0);
 }
@@ -344,10 +402,10 @@ void ADS126X::gpioWrite(uint8_t pin,uint8_t val) {
   ADS126X::writeRegister(ADS126X_GPIODAT);
 }
 
-void ADS126X::gpioRead(uint8_t pin) {
+bool ADS126X::gpioRead(uint8_t pin) {
   ADS126X::readRegister(ADS126X_GPIODAT); // read register
   uint8_t mask = 1<<pin;
-  return (REGISTER.GPIODAT.reg & mask) && true;
+  return (REGISTER.GPIODAT.reg & mask);
 }
 
 /*!< Backend commands     */
@@ -379,8 +437,8 @@ void ADS126X::readRegisters(uint8_t start_reg,uint8_t num) { // page 86
   SPI.transfer(num-1); // tell how many registers to read
 
   for(uint8_t i=0;i<num;i++) { // for each register we want to read
-    uint8_t current_reg = i+start_reg; // find the current register
-    REGISTER_ARRAY[current_reg] = SPI.transfer(ADS126X_DUMMY); // read the register
+    uint8_t current_reg = i+start_reg; // find the current desired register
+    REGISTER_ARRAY[current_reg] = SPI.transfer(ADS126X_DUMMY); // read and save the register
   }
   if(cs_used) digitalWrite(cs_pin,1);
 }
@@ -419,7 +477,7 @@ uint8_t ADS126X::find_crc(uint32_t val,uint8_t byt) {
     divisor <<= (msb_pos-9); // shift divisor to match greatest bit
     num ^= divisor; // XOR it
   }
-  return num ^ byt;
+  return num ^ byt; // if equal, this will be 0
 }
 
 uint8_t ADS126X::msb_pos(uint64_t val) { 
