@@ -1,5 +1,5 @@
-ADS126X-Arduino
-===============
+ADS126X
+=======
 A class to control the TI ADS1262 and ADS1263 analog to digital converters. 
 This basically includes all functions of these two chips. 
 Check the examples if it seems too complicated. 
