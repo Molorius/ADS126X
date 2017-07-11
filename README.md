@@ -11,8 +11,6 @@ been tested by me.
 I tried to keep all commands in the order the [datasheet](http://www.ti.com/lit/ds/symlink/ads1262.pdf) is written in for ease of reading. 
 Basic commands are on page 85, the register map is on page 88. 
 
-To do: make all internal calls generic, so this can be ported to other platforms. 
-
 Table of Contents
 =================
 * [Initialization](#initialization)
