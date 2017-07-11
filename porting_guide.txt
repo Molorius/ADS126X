@@ -1,0 +1,9 @@
+This library was originally written for the Arduino framework, but it should be
+easy to port. 
+
+All hardware specific functionality is defined in definitions/ADS126X_hardware.h
+To port, you just need to make functions for your board that perform those actions.
+
+If you don't know what a function is supposed to do, look at the Arduino code.
+The Arduino code is found in boards/arduino.cpp
+
