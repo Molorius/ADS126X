@@ -74,8 +74,7 @@ Table of Contents
    * [bypassPGA](#void-bypasspga "void bypassPGA()")
    * [setGain](#void-setgainuint8_t-gain "void setGain(uint8_t gain)")
    * [setRate](#void-setrateuint8_t-rate "void setRate(uint8_t rate)")
-   
-   * [setReference](#void-setreferenceuint8_t-negativereferenceuint8_t-positivereference "void setReference(uint8_t negativeReference, uint8_t positiveReference)")
+   * [setReference](#void-setreferenceuint8_t-negativereference-uint8_t-positivereference "void setReference(uint8_t negativeReference, uint8_t positiveReference)")
 * [GPIO Functions](#gpio-functions)
    * [gpioConnect](#void-gpioconnectuint8_t-pin "void gpioConnect(uint8_t pin)")
    * [gpioDisconnect](#void-gpiodisconnectuint8_t-pin "void gpioDisconnect(uint8_t pin)")
