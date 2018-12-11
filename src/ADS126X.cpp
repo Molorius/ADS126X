@@ -403,6 +403,14 @@ void ADS126X::setRate(uint8_t rate) {
   ADS126X::writeRegister(ADS126X_MODE2);
 }
 
+
+void ADS126X::setReference(uint8_t negativeReference, uint8_t positiveReference)
+{
+    REGISTER.REFMUX.bit.RMUXN = negativeReference;
+    REGISTER.REFMUX.bit.RMUXP = positiveReference;
+    ADS126X::writeRegister(ADS126X_REFMUX);
+}
+
 /*!< GPIO commands        */
 
 void ADS126X::gpioConnect(uint8_t pin) {

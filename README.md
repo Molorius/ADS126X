@@ -74,6 +74,7 @@ Table of Contents
    * [bypassPGA](#void-bypasspga "void bypassPGA()")
    * [setGain](#void-setgainuint8_t-gain "void setGain(uint8_t gain)")
    * [setRate](#void-setrateuint8_t-rate "void setRate(uint8_t rate)")
+   * [setReference](#void-setreferenceuint8_t-negativereference-uint8_t-positivereference "void setReference(uint8_t negativeReference, uint8_t positiveReference)")
 * [GPIO Functions](#gpio-functions)
    * [gpioConnect](#void-gpioconnectuint8_t-pin "void gpioConnect(uint8_t pin)")
    * [gpioDisconnect](#void-gpiodisconnectuint8_t-pin "void gpioDisconnect(uint8_t pin)")
@@ -504,6 +505,27 @@ make sure you set that up right.
 | `ADS126X_RATE_14400` | 14400 SPS |
 | `ADS126X_RATE_19200` | 19200 SPS |
 | `ADS126X_RATE_38400` | 38400 SPS |
+
+void setReference(uint8_t negativeReference, uint8_t positiveReference)
+--------------------------
+Selects the positive and negative references.
+
+|    Option - Negative    | Reference |
+|-------------------------|-----------|
+|  `ADS126X_REF_NEG_INT`  | INTERNAL  |
+|  `ADS126X_REF_NEG_AIN1` | AIN1      |
+|  `ADS126X_REF_NEG_AIN3` | AIN3      |
+|  `ADS126X_REF_NEG_AIN5` | AIN5      |
+|  `ADS126X_REF_NEG_VSS`  | VSS       |
+
+|    Option - Positive    | Reference |
+|-------------------------|-----------|
+|  `ADS126X_REF_POS_INT`  | INTERNAL  |
+|  `ADS126X_REF_POS_AIN0` | AIN0      |
+|  `ADS126X_REF_POS_AIN2` | AIN2      |
+|  `ADS126X_REF_POS_AIN4` | AIN4      |
+|  `ADS126X_REF_POS_VDD`  | VDD       |
+
 
 
 GPIO Functions

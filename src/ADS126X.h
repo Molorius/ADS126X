@@ -83,6 +83,8 @@ class ADS126X {
     void setGain(uint8_t gain);
     void setRate(uint8_t rate);
 
+    void setReference(uint8_t negativeReference, uint8_t positiveReference);
+
     // GPIO functions
     void gpioConnect(uint8_t pin);
     void gpioDisconnect(uint8_t pin);
