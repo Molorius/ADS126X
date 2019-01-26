@@ -1,15 +1,15 @@
 ADS126X
 =======
-A class to control the TI ADS1262 and ADS1263 analog to digital converters. 
-This basically includes all functions of these two chips. 
-Check the examples if it seems too complicated. 
+A class to control the TI ADS1262 and ADS1263 analog to digital converters.
+This basically includes all functions of these two chips.
+Check the examples if it seems too complicated.
 
 
 Note that all commands dealing with ACD2 are for the ADS1263 only, and have not
-been tested by me. 
+been tested by me.
 
-I tried to keep all commands in the order the [datasheet](http://www.ti.com/lit/ds/symlink/ads1262.pdf) is written in for ease of reading. 
-Basic commands are on page 85, the register map is on page 88. 
+I tried to keep all commands in the order the [datasheet](http://www.ti.com/lit/ds/symlink/ads1262.pdf) is written in for ease of reading.
+Basic commands are on page 85, the register map is on page 88.
 
 Table of Contents
 =================
@@ -35,6 +35,11 @@ Table of Contents
    * [calibrateSysOffsetADC2](#void-calibratesysoffsetadc2uint8_t-shorted1uint8_t-shorted2 "void calibrateSysOffsetADC2(uint8_t shorted1,uint8_t shorted2)")
    * [calibrateGainADC2](#void-calibrategainadc2uint8_t-vcc_pinuint8_t-gnd_pin "void calibrateGainADC2(uint8_t vcc_pin,uint8_t gnd_pin)")
    * [calibrateSelfOffsetADC2](#void-calibrateselfoffsetadc2 "void calibrateSelfOffsetADC2(void)")
+* [IDAC Functions](#idac-functions)
+   * [setIDAC1Pin](#void-setidac1pinuint8_t-pin "void setIDAC1Pin(uint8_t pin)")
+   * [setIDAC2Pin](#void-setidac2pinuint8_t-pin "void setIDAC2Pin(uint8_t pin)")
+   * [setIDAC1Mag](#void-setidac1maguint8_t-magnitude "void setIDAC1Mag(uint8_t magnitude)")
+   * [setIDAC2Mag](#void-setidac2maguint8_t-magnitude "void setIDAC2Mag(uint8_t magnitude)")
 * [Power Functions](#power-functions)
    * [checkResetBit](#bool-checkresetbit "bool checkResetBit()")
    * [clearResetBit](#void-clearresetbit "void clearResetBit()")
@@ -91,27 +96,27 @@ Starts the class.
 
 void begin(uint8_t chip_select)
 -------------------------------
-Sets up the chip and Arduino for usage. It also resets the chip. 
+Sets up the chip and Arduino for usage. It also resets the chip.
 `uint8_t chip_select` is the Arduino pin used to start communication with the chip.
 
 void begin()
 ------------
 The same as the above function, but without the chip select.
 If you use this, tie the CS pin on the chip to ground.
-I don't recommend using this. 
+I don't recommend using this.
 
 void setStartPin(uint8_t pin)
 -----------------------------
-Optional. Designate an Arduino pin to start ADC1. 
+Optional. Designate an Arduino pin to start ADC1.
 If not used, a command will be sent instead.
- 
+
 
 General Commands
 ================
 
 void noOperation()
 ------------------
-Tells the chip to stop everything. Future commands will wake it back up. 
+Tells the chip to stop everything. Future commands will wake it back up.
 
 void reset()
 ------------
@@ -119,11 +124,11 @@ Resets the chip.
 
 void startADC1()
 ----------------
-Starts conversion on ADC1. 
+Starts conversion on ADC1.
 
 void stopADC1()
 ---------------
-Stops conversion on ADC1. 
+Stops conversion on ADC1.
 
 void startADC2()
 ----------------
@@ -139,7 +144,7 @@ Analog Read Functions
 
 int32_t readADC1(uint8_t pos_pin,uint8_t neg_pin)
 -------------------------------------------------
-Reads the 32 bit voltage between the two pins `pos_pin` and `neg_pin`. 
+Reads the 32 bit voltage between the two pins `pos_pin` and `neg_pin`.
 These can be:
 
 |        Option         | Description                                    |
@@ -177,7 +182,7 @@ Calibration Functions
 
 void calibrateSysOffsetADC1(uint8_t shorted1,uint8_t shorted2)
 --------------------------------------------------------------
-Calibrates the system offset on ADC1. Short the pins externally, then run this command. 
+Calibrates the system offset on ADC1. Short the pins externally, then run this command.
 Options can be:
 
 |        Option         | Description |
@@ -188,8 +193,8 @@ Options can be:
 
 void calibrateGainADC1(uint8_t vcc_pin,uint8_t gnd_pin)
 -------------------------------------------------------
-Calibrates the PGA on ADC1. 
-`vcc_pin` should be connected to the maximum analog voltage,`gnd_pin` to analog ground. 
+Calibrates the PGA on ADC1.
+`vcc_pin` should be connected to the maximum analog voltage,`gnd_pin` to analog ground.
 Options can be:
 
 |        Option         | Description |
@@ -200,11 +205,11 @@ Options can be:
 
 void calibrateSelfOffsetADC1()
 ------------------------------
-Calibrates the self offset on ADC1. 
+Calibrates the self offset on ADC1.
 
 void calibrateSysOffsetADC2(uint8_t shorted1,uint8_t shorted2)
 --------------------------------------------------------------
-Calibrates the system offset on ADC2. Short the pins externally, then run this command. 
+Calibrates the system offset on ADC2. Short the pins externally, then run this command.
 Options can be:
 
 |        Option         | Description |
@@ -215,8 +220,8 @@ Options can be:
 
 void calibrateGainADC2(uint8_t vcc_pin,uint8_t gnd_pin)
 -------------------------------------------------------
-Calibrates the PGA on ADC2. 
-`vcc_pin` should be connected to the maximum analog voltage,`gnd_pin` to analog ground. 
+Calibrates the PGA on ADC2.
+`vcc_pin` should be connected to the maximum analog voltage,`gnd_pin` to analog ground.
 Options can be:
 
 |        Option         | Description |
@@ -227,69 +232,132 @@ Options can be:
 
 void calibrateSelfOffsetADC2()
 ------------------------------
-Calibrates the self offset on ADC2. 
+Calibrates the self offset on ADC2.
 
+IDAC Functions
+==============
+Functions relating to IDAC1 and IDAC2.
+
+void setIDAC1Pin(uint8_t pin)
+-----------------------------
+Selects the analog input pin to connect IDAC1.
+Options can be:
+|           Option           |        Description      |
+|----------------------------|-------------------------|
+| `0` or `ADS126X_IDAC_AIN0` |          Pin AIN0       |
+|            ...             |            ...          |
+| `9` or `ADS126X_IDAC_AIN9` |          Pin AIN9       |
+|    `ADS126X_IDAC_AINCOM`   |         Pin AINCOM      |
+|      `ADS126X_IDAC_NC`     | No Connection (default) |
+
+void setIDAC2Pin(uint8_t pin)
+-----------------------------
+Selects the analog input pin to connect IDAC2.
+Options can be:
+|           Option           |        Description      |
+|----------------------------|-------------------------|
+| `0` or `ADS126X_IDAC_AIN0` |          Pin AIN0       |
+|            ...             |            ...          |
+| `9` or `ADS126X_IDAC_AIN9` |          Pin AIN9       |
+|    `ADS126X_IDAC_AINCOM`   |         Pin AINCOM      |
+|      `ADS126X_IDAC_NC`     | No Connection (default) |
+
+void setIDAC1Mag(uint8_t magnitude)
+-----------------------------------
+Selects the current values of IDAC1.
+Options can be:
+|          Option         |  Description  |
+|-------------------------|---------------|
+|   `ADS126X_IDAC_MAG_0`  | off (default) |
+|  `ADS126X_IDAC_MAG_50`  |     50 µA     |
+| `ADS126X_IDAC_MAG_100`  |    100 µA     |
+| `ADS126X_IDAC_MAG_250`  |    250 µA     |
+| `ADS126X_IDAC_MAG_500`  |    500 µA     |
+| `ADS126X_IDAC_MAG_750`  |    750 µA     |
+| `ADS126X_IDAC_MAG_1000` |   1000 µA     |
+| `ADS126X_IDAC_MAG_1500` |   1500 µA     |
+| `ADS126X_IDAC_MAG_2000` |   2000 µA     |
+| `ADS126X_IDAC_MAG_2500` |   2500 µA     |
+| `ADS126X_IDAC_MAG_3000` |   3000 µA     |
+
+void setIDAC2Mag(uint8_t magnitude)
+-----------------------------------
+Selects the current values of IDAC2.
+Options can be:
+|          Option         |  Description  |
+|-------------------------|---------------|
+|   `ADS126X_IDAC_MAG_0`  | off (default) |
+|  `ADS126X_IDAC_MAG_50`  |     50 µA     |
+| `ADS126X_IDAC_MAG_100`  |    100 µA     |
+| `ADS126X_IDAC_MAG_250`  |    250 µA     |
+| `ADS126X_IDAC_MAG_500`  |    500 µA     |
+| `ADS126X_IDAC_MAG_750`  |    750 µA     |
+| `ADS126X_IDAC_MAG_1000` |   1000 µA     |
+| `ADS126X_IDAC_MAG_1500` |   1500 µA     |
+| `ADS126X_IDAC_MAG_2000` |   2000 µA     |
+| `ADS126X_IDAC_MAG_2500` |   2500 µA     |
+| `ADS126X_IDAC_MAG_3000` |   3000 µA     |
 
 Power Functions
 ===============
-I didn't know what else to call this category. 
-All functions have to do with the POWER register. 
+I didn't know what else to call this category.
+All functions have to do with the POWER register.
 
 bool checkResetBit()
 -----------------------
-Indicates ADC reset has occurred. If 1, a new reset has occured. 
-This should be 1 at start. 
+Indicates ADC reset has occurred. If 1, a new reset has occured.
+This should be 1 at start.
 
 void clearResetBit()
 --------------------
-Sets the reset bit to 0. 
+Sets the reset bit to 0.
 
 void enableLevelShift()
 -----------------------
-Enables the internal level shift voltage to the AINCOM pin. 
-Default disabled. 
+Enables the internal level shift voltage to the AINCOM pin.
+Default disabled.
 VBIAS = (V_AVDD + V_AVSS)/2
 
 void disableLevelShift()
 ------------------------
 Disables the internal level shift voltage to the AINCOM pin.
-Default disabled. 
+Default disabled.
 VBIAS = (V_AVDD + V_AVSS)/2
 
 void enableInternalReference()
 ------------------------------
 Enables the 2.5V internal voltage reference.
 Note the IDAC and temperature sensor require the internal voltage reference.
-Enabled by default. 
+Enabled by default.
 
 void disableInternalReference()
 ------------------------------
 Disables the 2.5V internal voltage reference.
 Note the IDAC and temperature sensor require the internal voltage reference.
-Enabled by default. 
+Enabled by default.
 
 
 Checksum Functions
 ==================
 If enabled, the chip will send a checksum during a voltage read to verify the data
-was sent correctly. These functions will set the mode, and return the verification. 
+was sent correctly. These functions will set the mode, and return the verification.
 
 void disableCheck()
 -------------------
-Disable the checksum. 
+Disable the checksum.
 
 void setChecksumMode()
 ----------------------
-Make the device return a checksum value. 
+Make the device return a checksum value.
 
 void setCRCMode()
 -----------------
-Make the device return a CRC value. 
+Make the device return a CRC value.
 
 bool lastChecksum()
 ----------------------
 Return the computed last checksum/CRC value.
-If 0, the data was transmitted correctly. 
+If 0, the data was transmitted correctly.
 
 
 Status Functions
@@ -299,19 +367,19 @@ All functions below will use the most recent status sent from the chip.
 
 void enableStatus()
 -------------------
-Enables the chip sending the status. Default enabled. 
+Enables the chip sending the status. Default enabled.
 
 void disableStatus()
 --------------------
-Disables the chip sending the status. 
+Disables the chip sending the status.
 
 uint8_t lastStatus()
 --------------------
-Returns the most recent status byte. More for debugging than anything. 
+Returns the most recent status byte. More for debugging than anything.
 
 bool lastADC2Status()
 ------------------------
-If 1, ADC2 data is new since the last ADC2 read operation. 
+If 1, ADC2 data is new since the last ADC2 read operation.
 
 bool lastADC1Status()
 ------------------------
@@ -324,14 +392,14 @@ If 1, ADC clock is external.
 
 bool lastADC1LowReferenceAlarm()
 -----------------------------------
-This is the low reference voltage alarm of ADC1. 
+This is the low reference voltage alarm of ADC1.
 The alarm bit is set if V_REF <= 0.4V, typical.
-If 0, no alarm. 
-If 1, low reference alarm. 
+If 0, no alarm.
+If 1, low reference alarm.
 
 bool lastADC1PGAOutputLowAlarm()
 -----------------------------------
-This is the ADC1 PGA absolute low voltage alarm. 
+This is the ADC1 PGA absolute low voltage alarm.
 The bit is set if the absolute voltage of either PGA output is less than
 V_AVSS + 0.2V. See the PGA Absolute Output-Voltage Monitor section of the datasheet.
 If 0, no alarm
@@ -339,7 +407,7 @@ If 1, PGA high voltage alarm
 
 bool lastADC1PGAOutputHighAlarm()
 ------------------------------------
-This is the ADC1 PGA absolute high voltage alarm. 
+This is the ADC1 PGA absolute high voltage alarm.
 The bit is set if the absolute voltage of either PGA output is greater than
 V_AVDD - 0.2V. See the PGA Absolute Output-Voltage Monitor section of the datasheet.
 If 0, no alarm
@@ -347,15 +415,15 @@ If 1, PGA high voltage alarm
 
 bool lastADC1PGADifferentialOutputAlarm()
 --------------------------------------------
-This is the ADC1 PGA differential output range alarm. 
+This is the ADC1 PGA differential output range alarm.
 This bit is set if the PGA differential output voltage exceeds +105% FS or -105% FS.
-See the PGA Differential Output Monitor section of the datasheet. 
+See the PGA Differential Output Monitor section of the datasheet.
 If 0, no alarm
 If 1, PGA differential range alarm
 
 bool lastReset()
 -------------------
-Indicates device reset. Device reset occurs at power-on, by the RESET/PWDN pin 
+Indicates device reset. Device reset occurs at power-on, by the RESET/PWDN pin
 or by the reset command. This bit is the same as the RESET bit of the POWER register.
 If 0, no reset occurred since the RESET bit in power register last cleared by the user.
 If 1, device reset occurred
@@ -367,17 +435,17 @@ Functions having to do with the MODE0 register.
 
 void setContinuousMode()
 ------------------------
-Puts the device into continuous read mode. Default. 
+Puts the device into continuous read mode. Default.
 
 void setPulseMode()
 -------------------
-Puts the device into pulse read mode. 
-Normally you would need to call the startADC* function before every readADC* 
-in this mode, but I have it automatically called. 
+Puts the device into pulse read mode.
+Normally you would need to call the startADC* function before every readADC*
+in this mode, but I have it automatically called.
 
 void setChopMode(uint8_t mode)
 ------------------------------
-Enables the ADC chop and ICAD rotation options. 
+Enables the ADC chop and ICAD rotation options.
 
 |      Option      | Description                                     |
 |------------------|-------------------------------------------------|
@@ -389,7 +457,7 @@ Enables the ADC chop and ICAD rotation options.
 void setDelay(uint8_t del)
 --------------------------
 Provides additional delay from conversion start to the beginning
-of the actual conversion. Default no delay. 
+of the actual conversion. Default no delay.
 
 |          Option        |  Delay   |
 |------------------------|----------|
@@ -413,8 +481,8 @@ Functions having to do with the MODE1 register.
 
 void setFilter(uint8_t filter)
 ------------------------------
-Configures the ADC digital filter. 
-Detailed description can be found starting on page 45. 
+Configures the ADC digital filter.
+Detailed description can be found starting on page 45.
 
 |     Option      | Description        |
 |-----------------|--------------------|
@@ -426,7 +494,7 @@ Detailed description can be found starting on page 45.
 
 void setBiasADC(uint8_t adc_choice)
 -----------------------------------
-Selects the ADC to connect the sensor bias. 
+Selects the ADC to connect the sensor bias.
 
 |           Option           | Description                                     |
 |----------------------------|-------------------------------------------------|
@@ -485,7 +553,7 @@ void setRate(uint8_t rate)
 --------------------------
 Selects the ADC data rate. In FIR filter mode, the available data
 rates are limited to 2.5, 5, 10, and 20 FPS. This class does NOT
-make sure you set that up right. 
+make sure you set that up right.
 
 |        Option        | Speed     |
 |----------------------|-----------|
@@ -530,9 +598,9 @@ Selects the positive and negative references.
 
 GPIO Functions
 ==============
-These all pertain to the gpio pins on the chip. 
+These all pertain to the gpio pins on the chip.
 
-For all of them, there is an input `uint8_t pin`. 
+For all of them, there is an input `uint8_t pin`.
 This is the gpio pin that you want to use. Map:
 
 | PinCode (`uint8_t pin`) | External Pin |
@@ -556,8 +624,8 @@ Disconnect the gpio pin from the external pin
 
 void gpioDirection(uint8_t pin,uint8_t direction)
 -------------------------------------------------
-Configures the pin as output or input. 
-All are set to output by default. 
+Configures the pin as output or input.
+All are set to output by default.
 
 |            Option            | Description             |
 |------------------------------|-------------------------|
@@ -566,7 +634,7 @@ All are set to output by default.
 
 void gpioWrite(uint8_t pin,uint8_t val)
 ---------------------------------------
-Writes a value to a pin configured as output. 
+Writes a value to a pin configured as output.
 
 |           Option           | Description  |
 |----------------------------|--------------|
@@ -575,9 +643,7 @@ Writes a value to a pin configured as output.
 
 bool gpioRead(uint8_t pin)
 --------------------------
-Reads the value of a pin configured as input. 
+Reads the value of a pin configured as input.
 
 Returns 0 if low
 Returns 1 if high
-
-

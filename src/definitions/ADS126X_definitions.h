@@ -2,11 +2,15 @@
 #ifndef ADS126X_DEFINITIONS_H
 #define ADS126X_DEFINITIONS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 # ifndef __IO
 #define __IO volatile
 # endif
 
-// commands. Page 85, table 37. 
+// commands. Page 85, table 37.
 #define ADS126X_NOP               0x00
 #define ADS126X_RESET             0x06
 #define ADS126X_START1            0x08
@@ -63,7 +67,7 @@
 #define ADS126X_ENABLE            0x01 // used throughout the registers
 #define ADS126X_DISABLE           0x00
 
-// checksum byte. Page 90. 
+// checksum byte. Page 90.
 #define ADS126X_CHECKSUM          0b01
 #define ADS126X_CHECK_CRC         0b10
 
@@ -133,7 +137,7 @@
 #define ADS126X_RATE_19200        0b1110
 #define ADS126X_RATE_38400        0b1111
 
-// pins to connect to. Page 94. Note that pins 0-9 correspond to the decimal values. 
+// pins to connect to. Page 94. Note that pins 0-9 correspond to the decimal values.
 #define ADS126X_AIN0              0b0000
 #define ADS126X_AIN1              0b0001
 #define ADS126X_AIN2              0b0010
@@ -151,7 +155,7 @@
 #define ADS126X_TDAC              0b1110
 #define ADS126X_FLOAT             0b1111
 
-// IDAC Output pins. Page 96. Note that pins 0-9 correspond to the decimal values. 
+// IDAC Output pins. Page 96. Note that pins 0-9 correspond to the decimal values.
 #define ADS126X_IDAC_AIN0         0b0000
 #define ADS126X_IDAC_AIN1         0b0001
 #define ADS126X_IDAC_AIN2         0b0010
@@ -286,7 +290,7 @@ typedef union { // page 91
   uint8_t reg;
 } ADS126X_MODE0_Type;
 
-typedef union { // page 92 
+typedef union { // page 92
   struct {
     uint8_t SBMAG:3;          /*!< bit:  0.. 2 Sensor Bias Magnitude              */
     uint8_t SBPOL:1;          /*!< bit:      3 Sensor Bias Polarity               */
@@ -327,23 +331,24 @@ typedef union { // page 95
   uint8_t reg;
 } ADS126X_FSCAL_Type;
 
-// Some definitions got in the way of this for me... 
+// Some AVR definitions got in the way of this for me...
+#ifndef __AVR__
 typedef union { // page 96
   struct {
-    #ifndef MUX1
       uint8_t MUX1:4;         /*!< bit  0.. 3 IDAC1 Output Multiplexer            */
-    #else
-      uint8_t ADS_MUX1:4;
-    #endif
-    
-    #ifndef MUX2
       uint8_t MUX2:4;         /*!< bit  4.. 7 IDAC2 Output Multiplexer            */
-    #else
-      uint8_t ADS_MUX2:4;
-    #endif
   } bit;
   uint8_t reg;
 } ADS126X_IDACMUX_Type;
+#else
+typedef union { // page 96
+  struct {
+      uint8_t ADS_MUX1:4;         /*!< bit  0.. 3 IDAC1 Output Multiplexer            */
+      uint8_t ADS_MUX2:4;         /*!< bit  4.. 7 IDAC2 Output Multiplexer            */
+  } bit;
+  uint8_t reg;
+} ADS126X_IDACMUX_Type;
+#endif
 
 typedef union { // page 97
   struct {
@@ -417,7 +422,7 @@ typedef union { // page 103
     uint8_t DAT4:1;           /*!< bit     4 GPIO[4] Pin Data                     */
     uint8_t DAT5:1;           /*!< bit     5 GPIO[5] Pin Data                     */
     uint8_t DAT6:1;           /*!< bit     6 GPIO[6] Pin Data                     */
-    uint8_t DAT7:1;           /*!< bit     7 GPIO[7] Pin Data                     */ 
+    uint8_t DAT7:1;           /*!< bit     7 GPIO[7] Pin Data                     */
   } bit;
   uint8_t reg;
 } ADS126X_GPIODAT_Type;
@@ -471,7 +476,7 @@ typedef struct { // the entire register map, page 88
   __IO ADS126X_IDACMAG_Type   IDACMAG;    /**< \brief Offset: 0x0E (R/W  8) IDAC Magnitude                 */
   __IO ADS126X_REFMUX_Type    REFMUX;     /**< \brief Offset: 0x0F (R/W  8) Reference Multiplexer          */
   __IO ADS126X_TDACP_Type     TDACP;      /**< \brief Offset: 0x10 (R/W  8) TDACP Output                   */
-  __IO ADS126X_TDACN_Type     TDACN;      /**< \brief Offset: 0x11 (R/W  8) TDACN Negative Output          */ 
+  __IO ADS126X_TDACN_Type     TDACN;      /**< \brief Offset: 0x11 (R/W  8) TDACN Negative Output          */
   __IO ADS126X_GPIOCON_Type   GPIOCON;    /**< \brief Offset: 0x12 (R/W  8) GPIO Connection                */
   __IO ADS126X_GPIODIR_Type   GPIODIR;    /**< \brief Offset: 0x13 (R/W  8) GPIO Direction                 */
   __IO ADS126X_GPIODAT_Type   GPIODAT;    /**< \brief Offset: 0x14 (R/W  8) GPIO Data                      */
@@ -497,5 +502,8 @@ typedef union { // page 70
   uint8_t reg;
 } ADS126X_STATUS_Type;
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // define ADS126X_DEFINITIONS_H
