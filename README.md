@@ -242,6 +242,7 @@ void setIDAC1Pin(uint8_t pin)
 -----------------------------
 Selects the analog input pin to connect IDAC1.
 Options can be:
+
 |           Option           |        Description      |
 |----------------------------|-------------------------|
 | `0` or `ADS126X_IDAC_AIN0` |          Pin AIN0       |
@@ -254,6 +255,7 @@ void setIDAC2Pin(uint8_t pin)
 -----------------------------
 Selects the analog input pin to connect IDAC2.
 Options can be:
+
 |           Option           |        Description      |
 |----------------------------|-------------------------|
 | `0` or `ADS126X_IDAC_AIN0` |          Pin AIN0       |
@@ -266,6 +268,7 @@ void setIDAC1Mag(uint8_t magnitude)
 -----------------------------------
 Selects the current values of IDAC1.
 Options can be:
+
 |          Option         |  Description  |
 |-------------------------|---------------|
 |   `ADS126X_IDAC_MAG_0`  | off (default) |
@@ -284,6 +287,7 @@ void setIDAC2Mag(uint8_t magnitude)
 -----------------------------------
 Selects the current values of IDAC2.
 Options can be:
+
 |          Option         |  Description  |
 |-------------------------|---------------|
 |   `ADS126X_IDAC_MAG_0`  | off (default) |
