@@ -293,6 +293,11 @@ void ADS126X::enableInternalReference() {
 	ADS126X::writeRegister(ADS126X_POWER);
 }
 
+void ADS126X::disableInternalReference() {
+	REGISTER.POWER.bit.INTREF = 0;
+	ADS126X::writeRegister(ADS126X_POWER);
+}
+
 /*!< INTERFACE register     */
 
 void ADS126X::disableCheck() {
