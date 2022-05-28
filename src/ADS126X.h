@@ -27,7 +27,12 @@ class ADS126X {
     void stopADC1(void);
     void startADC2(void);
     void stopADC2(void);
+    // Input Multiplexer Functions
+    void setInputMux1(uint8_t pos_pin,uint8_t neg_pin);
+    void setInputMux2(uint8_t pos_pin,uint8_t neg_pin);
     // Analog Read Functions
+    int32_t readADC1();
+    int32_t readADC2();
     int32_t readADC1(uint8_t pos_pin,uint8_t neg_pin);
     int32_t readADC2(uint8_t pos_pin,uint8_t neg_pin);
     // Calibration Functions
@@ -111,6 +116,8 @@ class ADS126X {
     uint8_t cs_pin; // chip select pin
     bool start_used = false;
     uint8_t start_pin; // start pin
+    bool running1 = false; // is adc1 running
+    bool running2 = false; // is adc2 running
 
     ADS126X_STATUS_Type STATUS; // save last status and checksum values
     uint8_t CHECKSUM;

@@ -44,6 +44,7 @@ void ADS126X::reset() {
 }
 
 void ADS126X::startADC1() {
+  running1 = true;
   if(start_used) {
     _ads126x_write_pin_low(start_pin);
     _ads126x_delay(2);
@@ -53,20 +54,74 @@ void ADS126X::startADC1() {
 }
 
 void ADS126X::stopADC1() {
+  running1 = false;
   ADS126X::sendCommand(ADS126X_STOP1);
 }
 
 void ADS126X::startADC2() {
+  running2 = true;
   ADS126X::sendCommand(ADS126X_START2);
 }
 
 void ADS126X::stopADC2() {
+  running2 = false;
   ADS126X::sendCommand(ADS126X_STOP2);
 }
 
+void ADS126X::setInputMux1(uint8_t pos_pin,uint8_t neg_pin) {
+  bool was_running = running1; // if we were running at the start of this
 
+  // check if the pins are even different
+  if((REGISTER.INPMUX.bit.MUXN == neg_pin) && (REGISTER.INPMUX.bit.MUXP == pos_pin)) {
+    // no change, exit
+    return;
+  }
+
+  if (was_running) {
+    stopADC1(); // stop any current read
+    _ads126x_delay(100); // wait for any settling. FIX - use a better way to handle settling time
+  }
+
+  REGISTER.INPMUX.bit.MUXN = neg_pin;
+  REGISTER.INPMUX.bit.MUXP = pos_pin;
+  ADS126X::writeRegister(ADS126X_INPMUX); // write the updated pin values
+
+  if (was_running) {
+    startADC1(); // restart the adc
+    _ads126x_delay(100); // wait for any settling. FIX - use a better way to handle settling time
+  }
+}
+
+void ADS126X::setInputMux2(uint8_t pos_pin,uint8_t neg_pin) {
+  bool was_running = running2; // if we were running at the start of this
+
+  // check if the pins are even different
+  if((REGISTER.ADC2MUX.bit.MUXN == neg_pin) && (REGISTER.ADC2MUX.bit.MUXP == pos_pin)) {
+    // no change, exit
+    return;
+  }
+
+  if (was_running) {
+    stopADC2(); // stop any current read
+    _ads126x_delay(100); // wait for any settling. FIX - use a better way to handle settling time
+  }
+
+  REGISTER.ADC2MUX.bit.MUXN = neg_pin;
+  REGISTER.ADC2MUX.bit.MUXP = pos_pin;
+  ADS126X::writeRegister(ADS126X_INPMUX); // write the updated pin values
+
+  if (was_running) {
+    startADC2(); // restart the adc
+    _ads126x_delay(100); // wait for any settling. FIX - use a better way to handle settling time
+  }
+}
 
 int32_t ADS126X::readADC1(uint8_t pos_pin,uint8_t neg_pin) {
+  setInputMux1(pos_pin,neg_pin); 
+  return readADC1();
+}
+
+int32_t ADS126X::readADC1() {
   // create buffer to hold transmission
   uint8_t buff[10] = {0}; // plenty of room, all zeros
 
@@ -80,13 +135,6 @@ int32_t ADS126X::readADC1(uint8_t pos_pin,uint8_t neg_pin) {
     uint32_t reg;
   } ADC_BYTES;
   ADC_BYTES.reg = 0; // clear the ram just in case
-
-  // check if desired pins are different than old pins
-  if((REGISTER.INPMUX.bit.MUXN != neg_pin) || (REGISTER.INPMUX.bit.MUXP != pos_pin)) {
-    REGISTER.INPMUX.bit.MUXN = neg_pin;
-    REGISTER.INPMUX.bit.MUXP = pos_pin;
-    ADS126X::writeRegister(ADS126X_INPMUX); // replace on ads126x
-  }
 
   uint8_t i = 0; // current place in outgoing buffer
   buff[i] = ADS126X_RDATA1; // the read adc1 command
@@ -127,6 +175,11 @@ int32_t ADS126X::readADC1(uint8_t pos_pin,uint8_t neg_pin) {
 }
 
 int32_t ADS126X::readADC2(uint8_t pos_pin,uint8_t neg_pin) {
+  setInputMux2(pos_pin,neg_pin); 
+  return readADC2();
+}
+
+int32_t ADS126X::readADC2() {
 
   // create buffer to hold transmission
   uint8_t buff[10] = {0}; // plenty of room, all zeros
@@ -141,13 +194,6 @@ int32_t ADS126X::readADC2(uint8_t pos_pin,uint8_t neg_pin) {
     uint32_t reg;
   } ADC_BYTES;
   ADC_BYTES.reg = 0; // clear so pad byte is 0
-
-  // check if desired pins are different than old pins
-  if((REGISTER.ADC2MUX.bit.MUXN != neg_pin) || (REGISTER.ADC2MUX.bit.MUXP != pos_pin)) {
-    REGISTER.ADC2MUX.bit.MUXN = neg_pin;
-    REGISTER.ADC2MUX.bit.MUXP = pos_pin;
-    ADS126X::writeRegister(ADS126X_ADC2MUX); // replace on ads126x
-  }
 
   uint8_t i = 0; // current place in outgoing buffer
   buff[i] = ADS126X_RDATA2; // the read adc2 command
