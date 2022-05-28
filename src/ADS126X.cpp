@@ -79,6 +79,7 @@ int32_t ADS126X::readADC1(uint8_t pos_pin,uint8_t neg_pin) {
     } bit;
     uint32_t reg;
   } ADC_BYTES;
+  ADC_BYTES.reg = 0; // clear the ram just in case
 
   // check if desired pins are different than old pins
   if((REGISTER.INPMUX.bit.MUXN != neg_pin) || (REGISTER.INPMUX.bit.MUXP != pos_pin)) {
@@ -138,6 +139,7 @@ int32_t ADS126X::readADC2(uint8_t pos_pin,uint8_t neg_pin) {
     } bit;
     uint32_t reg;
   } ADC_BYTES;
+  ADC_BYTES.reg = 0; // clear so pad byte is 0
 
   // check if desired pins are different than old pins
   if((REGISTER.ADC2MUX.bit.MUXN != neg_pin) || (REGISTER.ADC2MUX.bit.MUXP != pos_pin)) {
