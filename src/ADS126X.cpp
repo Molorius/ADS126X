@@ -64,9 +64,9 @@ void ADS126X::stopADC2() {
   ADS126X::sendCommand(ADS126X_STOP2);
 }
 
-int32_t ADS126X::readADC1(uint8_t pos_pin,uint8_t neg_pin) {
-  if(cs_used) _ads126x_write_pin_low(cs_pin);
 
+
+int32_t ADS126X::readADC1(uint8_t pos_pin,uint8_t neg_pin) {
   // create buffer to hold transmission
   uint8_t buff[10] = {0}; // plenty of room, all zeros
 
@@ -96,7 +96,9 @@ int32_t ADS126X::readADC1(uint8_t pos_pin,uint8_t neg_pin) {
   i += 4; // place to hold adc data
   if(REGISTER.INTERFACE.bit.CRC>0) i++; // place to hold checksum/crc byte
 
+  if(cs_used) _ads126x_write_pin_low(cs_pin);
   _ads126x_spi_rw(buff,i); // write spi, save values on buff
+  if(cs_used) _ads126x_write_pin_high(cs_pin);
 
   uint8_t j = 1; // start at byte 1, either status or first adc value
 
@@ -120,12 +122,11 @@ int32_t ADS126X::readADC1(uint8_t pos_pin,uint8_t neg_pin) {
     CHECKSUM = ADS126X::find_crc(ADC_BYTES.reg,checkbyte);
   }
 
-  if(cs_used) _ads126x_write_pin_high(cs_pin);
+  
   return ADC_BYTES.reg;
 }
 
 int32_t ADS126X::readADC2(uint8_t pos_pin,uint8_t neg_pin) {
-  if(cs_used) _ads126x_write_pin_low(cs_pin);
 
   // create buffer to hold transmission
   uint8_t buff[10] = {0}; // plenty of room, all zeros
@@ -157,7 +158,9 @@ int32_t ADS126X::readADC2(uint8_t pos_pin,uint8_t neg_pin) {
   i++; // place to hold pad byte
   if(REGISTER.INTERFACE.bit.CRC>0) i++; // place to hold checksum/crc byte
 
+  if(cs_used) _ads126x_write_pin_low(cs_pin);
   _ads126x_spi_rw(buff,i); // write spi, save values on buff
+  if(cs_used) _ads126x_write_pin_high(cs_pin);
 
   uint8_t j = 1; // start at byte 1, either status or first adc value
 
@@ -180,8 +183,6 @@ int32_t ADS126X::readADC2(uint8_t pos_pin,uint8_t neg_pin) {
     uint8_t checkbyte = buff[j];
     CHECKSUM = ADS126X::find_crc(ADC_BYTES.reg,checkbyte);
   }
-
-  if(cs_used) _ads126x_write_pin_high(cs_pin);
   return ADC_BYTES.reg;
 }
 
@@ -479,14 +480,13 @@ bool ADS126X::gpioRead(uint8_t pin) {
 /*!< Backend commands     */
 
 void ADS126X::sendCommand(uint8_t command) {
-  if(cs_used) _ads126x_write_pin_low(cs_pin);
   uint8_t buff[1] = {command};
+  if(cs_used) _ads126x_write_pin_low(cs_pin);
   _ads126x_spi_rw(buff,1);
   if(cs_used) _ads126x_write_pin_high(cs_pin);
 }
 
 void ADS126X::writeRegisters(uint8_t start_reg,uint8_t num) { // page 87
-  if(cs_used) _ads126x_write_pin_low(cs_pin);
   uint8_t buff[50] = {0}; // plenty of room, all zeros
 
   buff[0] = start_reg | ADS126X_WREG; // first byte is starting register with write command
@@ -498,26 +498,25 @@ void ADS126X::writeRegisters(uint8_t start_reg,uint8_t num) { // page 87
   }
 
   // have the microcontroller send the amounts, plus the commands
+  if(cs_used) _ads126x_write_pin_low(cs_pin);
   _ads126x_spi_rw(buff,num+2);
-
   if(cs_used) _ads126x_write_pin_high(cs_pin);
 }
 
 void ADS126X::readRegisters(uint8_t start_reg,uint8_t num) { // page 86
-  if(cs_used) _ads126x_write_pin_low(cs_pin);
   uint8_t buff[50] = {0}; // plenty of room, all zeros
 
   buff[0] = start_reg | ADS126X_RREG; // first byte is starting register with read command
   buff[1] = num-1; // tell how many registers to read, see datasheet
 
+  if(cs_used) _ads126x_write_pin_low(cs_pin);
   _ads126x_spi_rw(buff,num+2); // have the microcontroller read the amounts, plus send the commands
+  if(cs_used) _ads126x_write_pin_high(cs_pin);
 
   // save the commands to the register
   for(uint8_t i=0;i<num;i++) {
     REGISTER_ARRAY[i+start_reg] = buff[i+2];
   }
-
-  if(cs_used) _ads126x_write_pin_high(cs_pin);
 }
 
 void ADS126X::writeRegister(uint8_t reg) {
