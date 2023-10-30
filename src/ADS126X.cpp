@@ -32,6 +32,12 @@ void ADS126X::setStartPin(uint8_t pin) {
   _ads126x_write_pin_low(start_pin);
 }
 
+void ADS126X::setDrdyPin(uint8_t pin) {
+  drdy_used = true;
+  drdy_pin = pin;
+  _ads126x_setup_input(drdy_pin);
+}
+
 /*!< Regular ADC Commands    */
 
 void ADS126X::noOperation() {
@@ -81,6 +87,15 @@ void ADS126X::startADC2(uint8_t pos_pin, uint8_t neg_pin) {
 
 void ADS126X::stopADC2() {
   ADS126X::sendCommand(ADS126X_STOP2);
+}
+
+// NOTE: only drdy_pin version is implemented!
+bool ADS126X::dataReady() {
+  if (drdy_used) {
+    return !_ads126x_read_pin(drdy_pin); // LOW == data ready.
+  } else {
+    return true; // TODO: enable status byte and read ADC and check appropriate status bit
+  }
 }
 
 int32_t ADS126X::readADC1() {
