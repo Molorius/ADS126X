@@ -205,14 +205,24 @@ int32_t ADS126X::readADC2() {
   return ADC_BYTES.reg;
 }
 
-void ADS126X::calibrateSysOffsetADC1(uint8_t shorted1,uint8_t shorted2) {
-  // connect the pins internally
-  REGISTER.INPMUX.bit.MUXN = shorted1;
-  REGISTER.INPMUX.bit.MUXP = shorted2;
-  ADS126X::writeRegister(ADS126X_INPMUX);
-  _ads126x_delay(10); // let signal sort of settle
+void ADS126X::calibrateSysOffsetADC1(uint8_t shorted1, uint8_t shorted2, uint16_t waitTime) {
+  const uint8_t previousRunMode = REGISTER.MODE0.bit.RUNMODE;
+  setContinuousMode();
+  startADC1(shorted1, shorted2);
+  _ads126x_delay(10); // let things settle?
   ADS126X::sendCommand(ADS126X_SYOCAL1);
-  _ads126x_delay(50); // delay to allow time for reads
+  if (drdy_used) {
+    while (_ads126x_read_pin(drdy_pin)) {
+      // drdy_pin is pulled low when cal is complete
+    }
+  } else {
+    _ads126x_delay(waitTime);
+  }
+  // reset RUNMODE
+  if (previousRunMode != ADS126X_CONV_CONT) {
+    REGISTER.MODE0.bit.RUNMODE = previousRunMode;
+    ADS126X::writeRegister(ADS126X_MODE0);
+  }
 }
 
 void ADS126X::calibrateGainADC1(uint8_t vcc_pin,uint8_t gnd_pin) {
@@ -224,13 +234,26 @@ void ADS126X::calibrateGainADC1(uint8_t vcc_pin,uint8_t gnd_pin) {
   _ads126x_delay(50); // delay to allow time for reads
 }
 
-void ADS126X::calibrateSelfOffsetADC1() {
-  REGISTER.INPMUX.bit.MUXN = ADS126X_FLOAT;
-  REGISTER.INPMUX.bit.MUXP = ADS126X_FLOAT;
-  ADS126X::writeRegister(ADS126X_INPMUX);
-  _ads126x_delay(10);
+// assumes that you want to calibrate with the same GAIN and VREF that you are using
+// if not using DRDY pin, see table 9-28 on pg 79 to find appropraite wait time
+void ADS126X::calibrateSelfOffsetADC1(uint16_t waitTime) {
+  const uint8_t previousRunMode = REGISTER.MODE0.bit.RUNMODE;
+  setContinuousMode();
+  startADC1(ADS126X_FLOAT, ADS126X_FLOAT);
+  _ads126x_delay(10); // let things settle?
   ADS126X::sendCommand(ADS126X_SFOCAL1);
-  _ads126x_delay(50);
+  if (drdy_used) {
+    while (_ads126x_read_pin(drdy_pin)) {
+      // drdy_pin is pulled low when cal is complete
+    }
+  } else {
+    _ads126x_delay(waitTime);
+  }
+  // reset RUNMODE
+  if (previousRunMode != ADS126X_CONV_CONT) {
+    REGISTER.MODE0.bit.RUNMODE = previousRunMode;
+    ADS126X::writeRegister(ADS126X_MODE0);
+  }
 }
 
 void ADS126X::calibrateSysOffsetADC2(uint8_t shorted1,uint8_t shorted2) {

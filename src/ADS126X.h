@@ -33,9 +33,9 @@ class ADS126X {
     int32_t readADC1(void);
     int32_t readADC2(void);
     // Calibration Functions
-    void calibrateSysOffsetADC1(uint8_t shorted1,uint8_t shorted2);
+    void calibrateSysOffsetADC1(uint8_t shorted1,uint8_t shorted2, uint16_t waitTime);
     void calibrateGainADC1(uint8_t vcc_pin,uint8_t gnd_pin);
-    void calibrateSelfOffsetADC1(void);
+    void calibrateSelfOffsetADC1(uint16_t waitTime);
     void calibrateSysOffsetADC2(uint8_t shorted1,uint8_t shorted2);
     void calibrateGainADC2(uint8_t vcc_pin,uint8_t gnd_pin);
     void calibrateSelfOffsetADC2(void);
