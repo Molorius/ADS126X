@@ -110,6 +110,10 @@ void setStartPin(uint8_t pin)
 Optional. Designate an Arduino pin to start ADC1.
 If not used, a command will be sent instead.
 
+void setDrdyPin(uint8_t pin)
+-----------------------------
+Optional. Designate an Arduino pin to watch for Data Ready.
+If not used, calibrations will require a `waitTime` and dataReady() will always return true.
 
 General Commands
 ================
@@ -122,60 +126,62 @@ void reset()
 ------------
 Resets the chip.
 
-void startADC1()
+void startADC1(uint8_t pos_pin, uint8_t neg_pin)
 ----------------
-Starts conversion on ADC1.
+Starts conversion on ADC1 between the two pins `pos_pin` and `neg_pin`.
+These can be:
+
+|        Option         | Description                                    |
+|-----------------------|------------------------------------------------|
+| `0` or `ADS126X_AIN0` | Pin AIN0                                       |
+|          ...          |    ...                                         |
+| `9` or `ADS126X_AIN9` | Pin AIN9                                       |
+|   `ADS126X_AINCOM`    | Pin AINCOM                                     |
+|     `ADS126X_TEMP`    | Temperature sensor monitor positive/negative   |
+|    `ADS126X_ANALOG`   | Analog power supply monitor positive/negative  |
+|   `ADS126X_DIGITAL`   | Digital power supply monitor positive/negative |
+|     `ADS126X_TDAC`    | TDAC test signal positive/negative             |
+|    `ADS126X_FLOAT`    | Float (open connection)                        |
 
 void stopADC1()
 ---------------
-Stops conversion on ADC1.
+Stops conversion on ADC1. Uses `start_pin` if it was set (via `setStartPin`), sends a command if it wasn't.
 
-void startADC2()
+void startADC2(uint8_t pos_pin, uint8_t neg_pin)
 ----------------
-Starts conversion on ADC2.  
+Starts conversion on ADC2 between the two pins `pos_pin` and `neg_pin`.
+These can be:
+
+|        Option         | Description                                    |
+|-----------------------|------------------------------------------------|
+| `0` or `ADS126X_AIN0` | Pin AIN0                                       |
+|          ...          |    ...                                         |
+| `9` or `ADS126X_AIN9` | Pin AIN9                                       |
+|   `ADS126X_AINCOM`    | Pin AINCOM                                     |
+|     `ADS126X_TEMP`    | Temperature sensor monitor positive/negative   |
+|    `ADS126X_ANALOG`   | Analog power supply monitor positive/negative  |
+|   `ADS126X_DIGITAL`   | Digital power supply monitor positive/negative |
+|     `ADS126X_TDAC`    | TDAC test signal positive/negative             |
+|    `ADS126X_FLOAT`    | Float (open connection)                        |  
 
 void stopADC2()
 ---------------
 Stops conversion on ADC2.  
 
-
 Analog Read Functions
 =====================
 
-int32_t readADC1(uint8_t pos_pin,uint8_t neg_pin)
+int32_t readADC1()
 -------------------------------------------------
-Reads the 32 bit voltage between the two pins `pos_pin` and `neg_pin`.
-These can be:
-
-|        Option         | Description                                    |
-|-----------------------|------------------------------------------------|
-| `0` or `ADS126X_AIN0` | Pin AIN0                                       |
-|          ...          |    ...                                         |
-| `9` or `ADS126X_AIN9` | Pin AIN9                                       |
-|   `ADS126X_AINCOM`    | Pin AINCOM                                     |
-|     `ADS126X_TEMP`    | Temperature sensor monitor positive/negative   |
-|    `ADS126X_ANALOG`   | Analog power supply monitor positive/negative  |
-|   `ADS126X_DIGITAL`   | Digital power supply monitor positive/negative |
-|     `ADS126X_TDAC`    | TDAC test signal positive/negative             |
-|    `ADS126X_FLOAT`    | Float (open connection)                        |
+Reads the 32 bit voltage between the pins set in `startADC1`.
 
 int32_t readADC2(uint8_t pos_pin,uint8_t neg_pin)
 -------------------------------------------------
-Reads the 24 bit voltage between the two pins `pos_pin` and `neg_pin`.
-These can be:
+Reads the 24 bit voltage between the pins set in `startADC2`.
 
-|        Option         | Description                                    |
-|-----------------------|------------------------------------------------|
-| `0` or `ADS126X_AIN0` | Pin AIN0                                       |
-|          ...          |    ...                                         |
-| `9` or `ADS126X_AIN9` | Pin AIN9                                       |
-|   `ADS126X_AINCOM`    | Pin AINCOM                                     |
-|     `ADS126X_TEMP`    | Temperature sensor monitor positive/negative   |
-|    `ADS126X_ANALOG`   | Analog power supply monitor positive/negative  |
-|   `ADS126X_DIGITAL`   | Digital power supply monitor positive/negative |
-|     `ADS126X_TDAC`    | TDAC test signal positive/negative             |
-|    `ADS126X_FLOAT`    | Float (open connection)                        |
-
+bool dataReady()
+---------------
+If `setDrdyPin` was used, returns true when the adc's `DRDY` (data ready indicator) pin is `LOW`. If not pin was set, this always returns true. Useful for getting continuous conversions as quickly as possible. Almost certainly faster than command polling (especially if you attach this pin to an interrupt routine).
 
 Calibration Functions
 =====================
@@ -552,6 +558,10 @@ Selects the PGA gain
 | `ADS126X_GAIN_8`  | 8 V/V  |
 | `ADS126X_GAIN_16` | 16 V/V |
 | `ADS126X_GAIN_32` | 32 V/V |
+
+void getGain()
+--------------
+Returns the value of the constant used in setGain (i.e. `ADS126X_GAIN_1` -> `0b000` which is int `0`). To get the corresponding actual voltage gain, do something like `uint8_t voltageGainValue = 1 << adc.getGain();` (`ADS126X_GAIN_1` would return `1`).
 
 void setRate(uint8_t rate)
 --------------------------
