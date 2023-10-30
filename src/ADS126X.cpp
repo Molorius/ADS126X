@@ -43,28 +43,47 @@ void ADS126X::reset() {
   ADS126X::readRegisters(0,ADS126X_REG_NUM); // read all the registers
 }
 
-void ADS126X::startADC1() {
+void ADS126X::startADC1(uint8_t pos_pin, uint8_t neg_pin) {
+  // NOTE: can take up to 50ms for VRef to settle after power on (and possibly after changing certain registers?)
+  //  check if desired pins are different than old pins
+  if ((REGISTER.INPMUX.bit.MUXN != neg_pin) || (REGISTER.INPMUX.bit.MUXP != pos_pin)) {
+    REGISTER.INPMUX.bit.MUXN = neg_pin;
+    REGISTER.INPMUX.bit.MUXP = pos_pin;
+    ADS126X::writeRegister(ADS126X_INPMUX); // replace on ads126x
+  }
   if(start_used) {
     _ads126x_write_pin_low(start_pin);
-    _ads126x_delay(2);
+    _ads126x_delaymicro(2); // p.61 delay needs to be ~5.42534722e-7 seconds. so like 0.5us I think?
     _ads126x_write_pin_high(start_pin);
+    _ads126x_delaymicro(2);
+    _ads126x_write_pin_low(start_pin);
+    _ads126x_delaymicro(2);
   }
   else ADS126X::sendCommand(ADS126X_START1);
 }
 
 void ADS126X::stopADC1() {
-  ADS126X::sendCommand(ADS126X_STOP1);
+  if (start_used) {
+    _ads126x_write_pin_low(start_pin);
+  } 
+  else ADS126X::sendCommand(ADS126X_STOP1);
 }
 
-void ADS126X::startADC2() {
-  ADS126X::sendCommand(ADS126X_START2);
+void ADS126X::startADC2(uint8_t pos_pin, uint8_t neg_pin) {
+  // check if desired pins are different than old pins
+  if ((REGISTER.ADC2MUX.bit.MUXN != neg_pin) || (REGISTER.ADC2MUX.bit.MUXP != pos_pin)) {
+    REGISTER.ADC2MUX.bit.MUXN = neg_pin;
+    REGISTER.ADC2MUX.bit.MUXP = pos_pin;
+    ADS126X::writeRegister(ADS126X_ADC2MUX); // replace on ads126x
+  } 
+  else ADS126X::sendCommand(ADS126X_START2);
 }
 
 void ADS126X::stopADC2() {
   ADS126X::sendCommand(ADS126X_STOP2);
 }
 
-int32_t ADS126X::readADC1(uint8_t pos_pin,uint8_t neg_pin) {
+int32_t ADS126X::readADC1() {
   if(cs_used) _ads126x_write_pin_low(cs_pin);
 
   // create buffer to hold transmission
@@ -80,13 +99,6 @@ int32_t ADS126X::readADC1(uint8_t pos_pin,uint8_t neg_pin) {
     uint32_t reg;
   } ADC_BYTES;
   ADC_BYTES.reg = 0; // clear the ram just in case
-
-  // check if desired pins are different than old pins
-  if((REGISTER.INPMUX.bit.MUXN != neg_pin) || (REGISTER.INPMUX.bit.MUXP != pos_pin)) {
-    REGISTER.INPMUX.bit.MUXN = neg_pin;
-    REGISTER.INPMUX.bit.MUXP = pos_pin;
-    ADS126X::writeRegister(ADS126X_INPMUX); // replace on ads126x
-  }
 
   uint8_t i = 0; // current place in outgoing buffer
   buff[i] = ADS126X_RDATA1; // the read adc1 command
@@ -124,7 +136,7 @@ int32_t ADS126X::readADC1(uint8_t pos_pin,uint8_t neg_pin) {
   return ADC_BYTES.reg;
 }
 
-int32_t ADS126X::readADC2(uint8_t pos_pin,uint8_t neg_pin) {
+int32_t ADS126X::readADC2() {
   if(cs_used) _ads126x_write_pin_low(cs_pin);
 
   // create buffer to hold transmission
@@ -140,13 +152,6 @@ int32_t ADS126X::readADC2(uint8_t pos_pin,uint8_t neg_pin) {
     uint32_t reg;
   } ADC_BYTES;
   ADC_BYTES.reg = 0; // clear so pad byte is 0
-
-  // check if desired pins are different than old pins
-  if((REGISTER.ADC2MUX.bit.MUXN != neg_pin) || (REGISTER.ADC2MUX.bit.MUXP != pos_pin)) {
-    REGISTER.ADC2MUX.bit.MUXN = neg_pin;
-    REGISTER.ADC2MUX.bit.MUXP = pos_pin;
-    ADS126X::writeRegister(ADS126X_ADC2MUX); // replace on ads126x
-  }
 
   uint8_t i = 0; // current place in outgoing buffer
   buff[i] = ADS126X_RDATA2; // the read adc2 command

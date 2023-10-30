@@ -26,4 +26,7 @@ void _ads126x_spi_rw(uint8_t buff[],uint8_t len);
 // wait for the desired milliseconds
 void _ads126x_delay(uint16_t ms);
 
+// wait for the desired microseconds
+void _ads126x_delaymicro(uint16_t us);
+
 #endif // define ADS126X_HARDWARE_H

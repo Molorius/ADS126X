@@ -53,4 +53,9 @@ void _ads126x_delay(uint16_t ms) {
   delay(ms);
 }
 
+// wait for the desired microseconds
+void _ads126x_delaymicro(uint16_t us) {
+  delayMicroseconds(us);
+}
+
 #endif // ifdef ARDUINO

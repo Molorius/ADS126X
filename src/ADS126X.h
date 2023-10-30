@@ -23,13 +23,13 @@ class ADS126X {
     //General Commands
     void noOperation(void);
     void reset(void);
-    void startADC1(void);
+    void startADC1(uint8_t pos_pin, uint8_t neg_pin);
     void stopADC1(void);
-    void startADC2(void);
+    void startADC2(uint8_t pos_pin, uint8_t neg_pin);
     void stopADC2(void);
     // Analog Read Functions
-    int32_t readADC1(uint8_t pos_pin,uint8_t neg_pin);
-    int32_t readADC2(uint8_t pos_pin,uint8_t neg_pin);
+    int32_t readADC1(void);
+    int32_t readADC2(void);
     // Calibration Functions
     void calibrateSysOffsetADC1(uint8_t shorted1,uint8_t shorted2);
     void calibrateGainADC1(uint8_t vcc_pin,uint8_t gnd_pin);
