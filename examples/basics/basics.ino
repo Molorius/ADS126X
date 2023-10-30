@@ -15,13 +15,13 @@ void setup() {
   Serial.begin(115200);
   
   adc.begin(chip_select); // setup with chip select pin
-  adc.startADC1(); // start conversion on ADC1
+  adc.startADC1(pos_pin, neg_pin); // start conversion on ADC1
   
   Serial.println("Reading Voltages:");
 }
 
 void loop() {
-  long voltage = adc.readADC1(pos_pin,neg_pin); // read the voltage
+  long voltage = adc.readADC1(); // read the voltage
   Serial.println(voltage); // send voltage through serial
   delay(1000); // wait 1 second
 }
